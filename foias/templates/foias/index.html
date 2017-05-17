@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+
+{% if warn_about_holidays  %}
+  <div class="row" style="background-color: #fcc; padding: 5px;">
+    <p>WARNING: This app only knows about federal holidays through 2020. It's almost 2021. If this app is still in use, please remind its maintainer to add more federal holiday dates (in models.py). (This means you, o reader! Only you can prevent forest fires.)</p>
+  </div>
+{% endif %}
+
+  <div class="row" >
+    <div class="col-md-12">
+      <h4>Activity</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <h2>{{ my_foias_count }}</h2>
+      <p class="lead">FOIAs you've tracked here.</p>
+    </div>
+    <div class="col-md-3">
+      <h2>{{ all_foias_count }}</h2>
+      <p class="lead">total FOIAs tracked here.</p>
+    </div>
+    <div class="col-md-3">
+      <h2>{{ percent_overdue }}%</h2>
+      <p class="lead">of FOIAs are overdue.</p>
+    </div>
+    <div class="col-md-3">
+      <h2>{{ percent_complete }}%</h2>
+      <p class="lead">of FOIAs have been completed.</p>
+    </div>
+  </div>
+
+  <div class="row" style="font-size: 16px; border-top: 1em solid #336; margin-top: 20px; padding-top: 20px;">
+    <p>If you track your FOIAs here, you can benefit from: </p>
+      <ul>
+        <li>automatic <b>email reminders</b> of deadlines when a response or appeal is due</li>
+        <li>easier collaboration, since you'll know who may have already filed a <b>similar requests</b></li>
+        <li>coordination with <b>your PR people or lawyers</b> if pressure or litigation becomes necessary</li>
+      </ul>
+  </div>
+
+
+  <div class="row" >
+    <a class="btn btn-default btn-lg btn-block" href="{% url 'admin:foias_foia_add' %}">
+      Track Your FOIA
+    </a>
+  </div>
+
+
+  {% if my_foias %}
+  <div class="row" style="border-top: 1em solid #336; margin-top: 20px; padding-top: 20px;">
+    <p class="lead">Here's a list of FOIAs you've filed: </p>
+  </div>
+    {% include "foias/foiatable.html" with foias=my_foias only %}
+  {% else %}
+      <p>Looks like you haven't recorded any of your FOIAs here. <a href="{% url 'admin:foias_foia_add' %}">Give it a try!</a> It's quick and easy.</p>
+  {% endif %}
+
+
+  <div class="row" style="margin-top: 20px; padding-top: 20px;">
+    <p class="lead">Here's a list of FOIAs filed recently by your colleagues: </p>
+
+    {% if latest_foias %}
+      <form action="{% url 'foias:search' %}" ><p>See <a href="{% url 'foias:all' %}">all FOIA filed by everyone</a> or search: <input style="border: 1px solid #ccc; border-radius: 4px; padding: 5px 6px; margin-top: 0;" type="text" name="q" placeholder="Trump planes" /> <button class="btn btn-default" type="submit">Search</button></p></form>
+      {% include "foias/foiatable.html" with foias=latest_foias only %}
+
+    {% else %}
+        <p>No one else has filed a FOIA!</p>
+    {% endif %}
+  </div>
+
+  {% endblock %}
+</div>
+{% block extrajs %}
+  <script type="text/javascript">
+    $(document).ready(function() 
+      { 
+        $('.foiatable').each(function(i, el){
+          $(el).tablesorter({"sortList": [[6,0]]}); 
+        })
+      } 
+    ); 
+  </script>
+
+{%endblock%}

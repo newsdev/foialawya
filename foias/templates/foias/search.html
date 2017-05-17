@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+
+  {% if result_foias %}
+  <div class="row" style="border-top: 1em solid #336; margin-top: 20px; padding-top: 20px;">
+    <p class="lead">Here's a list of results: </p>
+  </div>
+
+    {% include "foias/foiatable.html" with foias=result_foias only %}
+  {% else %}
+      <p>Sorry, there are no results matching your query for <b>{{ query }}</b></p>
+  {% endif %}
+
+
+  {% endblock %}
+</div>
+{% block extrajs %}
+  <script type="text/javascript">
+    $(document).ready(function() 
+      { 
+        $("#foiastatus").tablesorter({"sortList": [[6,0]]}); 
+      } 
+    ); 
+  </script>
+
+{%endblock%}

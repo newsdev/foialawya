@@ -1,0 +1,25 @@
+<table class="alternaterows foiatable">
+  <thead>
+    <th>filed</th>
+    <th>with... </th>
+    <th>for...</th>
+    <th>status</th><!-- highlight if something's overdue? -->
+    <th>next due date</th>
+    <th>by... </th>          
+    <th><!-- edit button goes here --></th>
+  </thead>
+  <tbody>
+{% for foia in foias %}
+    <!-- TODO: if it's your FOIA, link you to the admin page? -->
+    <tr>
+      <td>{{ foia.filed_date }}</td>
+      <td>{{ foia.agency }}</td>
+      <td>{{ foia.request_subject|truncatechars:50 }}</td>
+      <td>{{ foia.status }}</td>
+      <td>{{ foia.next_due_date }}</td>
+      <td>{{ foia.reporter }}</td>            
+      <td><span style="display: none;">{{ foia.sort_order }} {{foia.sortable_filed_date}}</span> <a class="btn btn-default btn-block" href="{% url 'admin:foias_foia_change' foia.id %}">View / Edit</a></td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>

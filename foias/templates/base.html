@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}FOIA Lawya</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//s3.amazonaws.com/int.nyt.com/cdn/adcom-nyt/0.2.10/dist/css/adcom-nyt.css" rel="stylesheet" media="screen">
+    <link href="//gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <style type="text/css">
+        div#content {
+            padding-top: 30px;
+            padding-bottom: 120px;
+        }
+        .navbar-primary {
+            border-bottom: 2px solid #333;
+        }
+
+        table thead th {
+          padding-right: 10px;
+          padding-left: 5px;
+        }
+        table td {
+          padding: 5px;
+        }
+        table.alternaterows tbody tr:nth-child(even) {
+          background-color: #eee;
+        }
+
+        .btn-lg {
+          font-size: 18px;
+          padding: 10px 16px;
+          font-size: 18px;
+          line-height: 1.33333;
+        }
+    </style>
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-primary">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">FOIA Lawya</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+          <li class="navbar-summary">
+            <span style="color: #333;font-weight:400;">
+              Track your requests, get email alerts
+            </span>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right navbar-bits">
+          <li>
+            <!-- <a href="http://example.com/foia-tipsheet.html">FOIA Tipsheet</a> -->
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="content" class="container">{% block content %}{% endblock %}</div>
+
+    <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.5/js/jquery.tablesorter.min.js"></script>    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+    <script src="//gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+    <script src="//s3.amazonaws.com/int.nyt.com/cdn/adcom-nyt/0.2.10/dist/js/adcom-nyt.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() 
+      { 
+        $("#foiastatus").tablesorter(); 
+      } 
+    ); 
+  </script>
+
+    {% block extrajs %}{% endblock %}
+
+    <footer class="footer">
+        <div class="container tool-credit">
+          <p>This FOIA tracking tool is <a href="https://github.com/newsdev/foialawya">open-source</a> and built by journalists like you. If there's something that doesn't work correctly or if you have an idea for a way to make it better, please open an Issue on that page. Seriously! We want to hear from you.</p>
+        </div>
+      </footer>    
+
+
+  </body>
+</html>

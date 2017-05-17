@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>FOIA for {{foia.agency}}</h1>
+
+<p>By {{foia.reporter }}, filed {{foia.filed_date}}</p>
+
+<p>This FOIA is <b>{{ foia.status }}</b></p>
+
+<p>It was filed on <b>{{ foia.filed_date }}</b> and requested <b>{{ foia.request_subject }}</b></p>
+
+<a href="{% url 'admin:foias_foia_change' foia.id %}">Edit</a>
+
+{% endblock %}

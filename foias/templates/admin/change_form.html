@@ -1,0 +1,28 @@
+{% extends "admin/change_form.html" %}
+
+
+{% block breadcrumbs %}
+
+<div class="breadcrumbs">
+<a href="/">Home</a>
+&rsaquo; {% if add %}Add {{ name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+</div>
+
+{% endblock %}
+
+{% block footer %}
+<div id="footer">
+  <script type="text/javascript">
+    if($('.field-date_response_due_custom input').val() == ''){
+      $('.field-date_response_due_custom').hide();
+    }
+
+    $('#custom-resp-due').on('click', function(e){
+      console.log("click")
+      $(e.currentTarget).parents(".field-date_response_due_human").hide();
+      $('.field-date_response_due_custom').show();
+      return false;
+    })
+  </script>
+</div>
+{% endblock %}

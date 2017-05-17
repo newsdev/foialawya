@@ -1,0 +1,42 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "8080:80"
+      # host port : container port     
+    depends_on: 
+      - add_data
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.docker.settings
+      - DB_HOST=psql
+      - DB_NAME=foias
+      - DB_USER=postgres
+      - DB_PASSWORD=asdf
+    links: 
+      - psql
+  add_data: 
+    build: .
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.docker.settings
+      - DB_HOST=psql
+      - DB_NAME=foias
+      - DB_USER=postgres
+      - DB_PASSWORD=asdf    
+    depends_on: 
+      - psql
+    links:
+      - psql
+    command: 'python manage.py loaddata foias/fixtures/opensource.yaml'
+  psql:
+    image: postgres:9.6.2
+    volumes:
+      - postgres-db-volume:/data/postgres
+    environment:
+      POSTGRES_USER: postgres # this doesn't seem to take. I don't know why.
+      POSTGRES_DB: foias
+      POSTGRES_PASSWORD: asdf
+    ports: 
+      - "5433:5432"
+volumes:
+  postgres-db-volume: # this space intentionally left blank.
