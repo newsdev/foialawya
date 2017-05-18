@@ -38,10 +38,10 @@ def index(request):
         my_foias     = sorted(Foia.objects.filter(reporter=request.user), key=lambda f: f.sort_order())
     my_foias_set = set(my_foias)
 
-    my_foias_count   = Foia.objects.filter(reporter=request.user).count()
+    my_foias_count   = Foia.objects.filter(reporter=request.user).count() if not request.user.is_anonymous else 0
     all_foias_count  = Foia.objects.count()
     percent_overdue  = "TK" #Foia.objects.filter(reporter=request.user).count()
-    percent_complete =  int(float(Foia.objects.filter(received_response=True).filter(response_satisfactory=True).count())/all_foias_count*100)
+    percent_complete =  int(float(Foia.objects.filter(received_response=True).filter(response_satisfactory=True).count())/all_foias_count*100) if not all_foias_count == 0 else "n/a"
 
     latest_foias = [item for item in latest_foias if item not in my_foias_set]
     return render(request, 'foias/index.html', 
