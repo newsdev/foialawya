@@ -56,15 +56,15 @@ You also need to do this for the link to your site to work in emails:
 2. Once you do, take the number from the URL (the `2` from `http://wherever.its.deployed.example.com/admin/sites/site/2/change/`) and then set the SITE_ID variable to it. (e.g. `SITE_ID=2`)
 
 
-Docker Machine
-==============
+Docker Compose (How to run FOIA Lawya locally)
+----------------------------------------------
 
-Just run `docker-compose up` in this directory, then visit [localhost:8080](http://localhost:8080) in your browser.
+Just run `docker-compose up` in this directory, then visit [localhost:8080](http://localhost:8080) in your browser. You'll need to have [Docker Compose](https://docs.docker.com/compose/install/) installed first.
 
-You'll see a demo version of FOIA Lawya. It doesn't send alerts -- unless you were to modify the docker-compose file to set the email-related environment variables above -- so it's not really going to be super useful to you unless you deploy it for real.
+You'll see a demo version of FOIA Lawya. It doesn't send alerts -- unless you were to modify the docker-compose file to set the email-related environment variables above -- so it's not really going to be super useful to you unless you deploy it for real. To b clear, the version you get this way is probably best for testing out FOIA Lawya, not for using it for real.
 
 Authentication
-==============
+--------------
 
 The open-source version of FOIA Lawya uses the default Django Admin system. 
 
@@ -85,17 +85,8 @@ The benefits of the OAuth system is that it allows your users to "seamlessly" lo
 
 That should be about it. Open an issue if you run into any hiccups.
 
-Eventually (TODO):
-===========
-- State rules/deadlines.
-
-Notes on things that'll eventually cause problems:
-==================================================
-
-There is not currently a full-text index (as of 3/28/17) but it might eventually be necessary. And if so, it wouldn't be reflected in code here (Django: ¯\_(ツ)_/¯).
-
-To Run Locally, not with Docker Machine
-========================================
+To Run Locally, not with Docker Compose
+---------------------------------------
 ```
 pip install -r requirements.txt 
 createdb foialawya
@@ -103,3 +94,18 @@ python manage.py migrate
 python manage.py loaddata foias/fixtures/opensource.yaml
 python manage.py runserver
 ```
+
+Design philosophy and thoughts
+==============================
+
+I wrote about how to data-model FOIAs here: https://source.opennews.org/articles/foia-data-models/
+
+Eventually (TODO):
+==================
+- State rules/deadlines.
+
+Notes on things that'll eventually cause problems:
+==================================================
+
+There is not currently a full-text index (as of 3/28/17) but it might eventually be necessary. And if so, it wouldn't be reflected in code here (Django: ¯\_(ツ)_/¯).
+
