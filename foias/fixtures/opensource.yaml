@@ -1,0 +1,394 @@
+- model: contenttypes.contenttype
+  fields: {app_label: admin, model: logentry}
+- model: contenttypes.contenttype
+  fields: {app_label: auth, model: permission}
+- model: contenttypes.contenttype
+  fields: {app_label: auth, model: group}
+- model: contenttypes.contenttype
+  fields: {app_label: auth, model: user}
+- model: contenttypes.contenttype
+  fields: {app_label: contenttypes, model: contenttype}
+- model: contenttypes.contenttype
+  fields: {app_label: sessions, model: session}
+- model: contenttypes.contenttype
+  fields: {app_label: foias, model: foia}
+- model: contenttypes.contenttype
+  fields: {app_label: foias, model: myuser}
+- model: contenttypes.contenttype
+  fields: {app_label: sites, model: site}
+- model: contenttypes.contenttype
+  fields: {app_label: account, model: emailconfirmation}
+- model: contenttypes.contenttype
+  fields: {app_label: account, model: emailaddress}
+- model: contenttypes.contenttype
+  fields: {app_label: socialaccount, model: socialtoken}
+- model: contenttypes.contenttype
+  fields: {app_label: socialaccount, model: socialaccount}
+- model: contenttypes.contenttype
+  fields: {app_label: socialaccount, model: socialapp}
+- model: contenttypes.contenttype
+  fields: {app_label: foias, model: agency}
+- model: foias.agency
+  pk: 1
+  fields: {name: National Personnel Records Center (NPRC), notes: ''}
+- model: foias.agency
+  pk: 2
+  fields: {name: Federal Aviation Administration, notes: ''}
+- model: foias.agency
+  pk: 3
+  fields: {name: Secret Service, notes: ''}
+- model: foias.agency
+  pk: 4
+  fields: {name: Department of Agriculture, notes: ''}
+- model: foias.agency
+  pk: 5
+  fields: {name: Department of Commerce, notes: ''}
+- model: foias.agency
+  pk: 6
+  fields: {name: Department of Defense, notes: ''}
+- model: foias.agency
+  pk: 7
+  fields: {name: Department of Health and Human Services, notes: ''}
+- model: foias.agency
+  pk: 8
+  fields: {name: Department of the Interior, notes: ''}
+- model: foias.agency
+  pk: 9
+  fields: {name: Department of Justice, notes: ''}
+- model: foias.agency
+  pk: 10
+  fields: {name: Department of Labor, notes: ''}
+- model: foias.agency
+  pk: 11
+  fields: {name: Department of State, notes: ''}
+- model: foias.agency
+  pk: 12
+  fields: {name: Department of the Treasury, notes: ''}
+- model: foias.agency
+  pk: 13
+  fields: {name: Department of Homeland Security, notes: ''}
+- model: foias.agency
+  pk: 14
+  fields: {name: Department of Education, notes: ''}
+- model: foias.agency
+  pk: 15
+  fields: {name: Department of Energy, notes: ''}
+- model: foias.agency
+  pk: 16
+  fields: {name: Environmental Protection Agency, notes: ''}
+- model: foias.agency
+  pk: 17
+  fields: {name: Department of Transportation, notes: ''}
+- model: foias.agency
+  pk: 18
+  fields: {name: Department of Housing and Urban Development, notes: ''}
+- model: foias.agency
+  pk: 19
+  fields: {name: National Aeronautics and Space Administration, notes: ''}
+- model: foias.agency
+  pk: 20
+  fields: {name: Department of Veterans Affairs, notes: ''}
+- model: foias.agency
+  pk: 21
+  fields: {name: Office of Government Ethics, notes: ''}
+- model: foias.agency
+  pk: 23
+  fields: {name: General Services Administration, notes: ''}
+- model: foias.agency
+  pk: 24
+  fields: {name: Office of the Director of National Intelligence, notes: ''}
+- model: foias.agency
+  pk: 25
+  fields: {name: DoJ Office of Legal Counsel, notes: ''}
+- model: foias.agency
+  pk: 26
+  fields: {name: CIA, notes: ''}
+- model: foias.agency
+  pk: 27
+  fields: {name: 'FBI ', notes: ''}
+- model: foias.agency
+  pk: 28
+  fields: {name: DoD Inspector General, notes: ''}
+- model: foias.agency
+  pk: 29
+  fields: {name: National Archives and Records Administration, notes: ''}
+- model: foias.agency
+  pk: 30
+  fields: {name: Internal Revenue Service, notes: ''}
+- model: foias.agency
+  pk: 31
+  fields: {name: National Personnel Records Center (NARA), notes: ''}
+- model: auth.permission
+  fields:
+    name: Can add log entry
+    content_type: [admin, logentry]
+    codename: add_logentry
+- model: auth.permission
+  fields:
+    name: Can change log entry
+    content_type: [admin, logentry]
+    codename: change_logentry
+- model: auth.permission
+  fields:
+    name: Can delete log entry
+    content_type: [admin, logentry]
+    codename: delete_logentry
+- model: auth.permission
+  fields:
+    name: Can add permission
+    content_type: [auth, permission]
+    codename: add_permission
+- model: auth.permission
+  fields:
+    name: Can change permission
+    content_type: [auth, permission]
+    codename: change_permission
+- model: auth.permission
+  fields:
+    name: Can delete permission
+    content_type: [auth, permission]
+    codename: delete_permission
+- model: auth.permission
+  fields:
+    name: Can add group
+    content_type: [auth, group]
+    codename: add_group
+- model: auth.permission
+  fields:
+    name: Can change group
+    content_type: [auth, group]
+    codename: change_group
+- model: auth.permission
+  fields:
+    name: Can delete group
+    content_type: [auth, group]
+    codename: delete_group
+- model: auth.permission
+  fields:
+    name: Can add user
+    content_type: [auth, user]
+    codename: add_user
+- model: auth.permission
+  fields:
+    name: Can change user
+    content_type: [auth, user]
+    codename: change_user
+- model: auth.permission
+  fields:
+    name: Can delete user
+    content_type: [auth, user]
+    codename: delete_user
+- model: auth.permission
+  fields:
+    name: Can add content type
+    content_type: [contenttypes, contenttype]
+    codename: add_contenttype
+- model: auth.permission
+  fields:
+    name: Can change content type
+    content_type: [contenttypes, contenttype]
+    codename: change_contenttype
+- model: auth.permission
+  fields:
+    name: Can delete content type
+    content_type: [contenttypes, contenttype]
+    codename: delete_contenttype
+- model: auth.permission
+  fields:
+    name: Can add session
+    content_type: [sessions, session]
+    codename: add_session
+- model: auth.permission
+  fields:
+    name: Can change session
+    content_type: [sessions, session]
+    codename: change_session
+- model: auth.permission
+  fields:
+    name: Can delete session
+    content_type: [sessions, session]
+    codename: delete_session
+- model: auth.permission
+  fields:
+    name: Can add foia
+    content_type: [foias, foia]
+    codename: add_foia
+- model: auth.permission
+  fields:
+    name: Can change foia
+    content_type: [foias, foia]
+    codename: change_foia
+- model: auth.permission
+  fields:
+    name: Can delete foia
+    content_type: [foias, foia]
+    codename: delete_foia
+- model: auth.permission
+  fields:
+    name: Can add my user
+    content_type: [auth, user]
+    codename: add_myuser
+- model: auth.permission
+  fields:
+    name: Can change my user
+    content_type: [auth, user]
+    codename: change_myuser
+- model: auth.permission
+  fields:
+    name: Can delete my user
+    content_type: [auth, user]
+    codename: delete_myuser
+- model: auth.permission
+  fields:
+    name: Can add site
+    content_type: [sites, site]
+    codename: add_site
+- model: auth.permission
+  fields:
+    name: Can change site
+    content_type: [sites, site]
+    codename: change_site
+- model: auth.permission
+  fields:
+    name: Can delete site
+    content_type: [sites, site]
+    codename: delete_site
+- model: auth.permission
+  fields:
+    name: Can add email confirmation
+    content_type: [account, emailconfirmation]
+    codename: add_emailconfirmation
+- model: auth.permission
+  fields:
+    name: Can change email confirmation
+    content_type: [account, emailconfirmation]
+    codename: change_emailconfirmation
+- model: auth.permission
+  fields:
+    name: Can delete email confirmation
+    content_type: [account, emailconfirmation]
+    codename: delete_emailconfirmation
+- model: auth.permission
+  fields:
+    name: Can add email address
+    content_type: [account, emailaddress]
+    codename: add_emailaddress
+- model: auth.permission
+  fields:
+    name: Can change email address
+    content_type: [account, emailaddress]
+    codename: change_emailaddress
+- model: auth.permission
+  fields:
+    name: Can delete email address
+    content_type: [account, emailaddress]
+    codename: delete_emailaddress
+- model: auth.permission
+  fields:
+    name: Can add social application token
+    content_type: [socialaccount, socialtoken]
+    codename: add_socialtoken
+- model: auth.permission
+  fields:
+    name: Can change social application token
+    content_type: [socialaccount, socialtoken]
+    codename: change_socialtoken
+- model: auth.permission
+  fields:
+    name: Can delete social application token
+    content_type: [socialaccount, socialtoken]
+    codename: delete_socialtoken
+- model: auth.permission
+  fields:
+    name: Can add social account
+    content_type: [socialaccount, socialaccount]
+    codename: add_socialaccount
+- model: auth.permission
+  fields:
+    name: Can change social account
+    content_type: [socialaccount, socialaccount]
+    codename: change_socialaccount
+- model: auth.permission
+  fields:
+    name: Can delete social account
+    content_type: [socialaccount, socialaccount]
+    codename: delete_socialaccount
+- model: auth.permission
+  fields:
+    name: Can add social application
+    content_type: [socialaccount, socialapp]
+    codename: add_socialapp
+- model: auth.permission
+  fields:
+    name: Can change social application
+    content_type: [socialaccount, socialapp]
+    codename: change_socialapp
+- model: auth.permission
+  fields:
+    name: Can delete social application
+    content_type: [socialaccount, socialapp]
+    codename: delete_socialapp
+- model: auth.permission
+  fields:
+    name: Can add Agency
+    content_type: [foias, agency]
+    codename: add_agency
+- model: auth.permission
+  fields:
+    name: Can change Agency
+    content_type: [foias, agency]
+    codename: change_agency
+- model: auth.permission
+  fields:
+    name: Can delete Agency
+    content_type: [foias, agency]
+    codename: delete_agency
+- model: auth.user
+  pk: 1
+  fields:
+    password: 'pbkdf2_sha256$30000$7npIFLC22RFN$3Za+FIs9JFcImiM+6l5Tak5ctril1kVFV7N0apflGGo=' # encoded "password" (no quotes)
+    last_login: 2017-03-23 17:55:53.789412+00:00
+    is_superuser: true
+    username: superuser
+    first_name: Superuser
+    last_name: Fakename
+    email: superuser@example.com
+    is_staff: true
+    is_active: true
+    date_joined: 2017-02-23 19:18:45.981226+00:00
+    groups: []
+    user_permissions: []    
+- model: foias.foia
+  pk: 1
+  fields:
+    reporter: [superuser]
+    agency: 1
+    filed_date: 2017-02-08
+    request_subject: Some records
+    request_notes: ''
+    is_state_foia: false
+    received_ack_letter: true
+    ack_date: 2017-02-14
+    request_number: ''
+    submission_notes: ''
+    date_response_due_custom: 2017-03-09
+    received_response: true
+    resp_date: 2017-02-14
+    response_satisfactory: true
+    response_notes: ''
+    response_url: 
+    appealed: false
+    appeal_date: null
+    lawsuit_filed: false
+    lawsuit_filed_date: null
+    lawsuit_notes: ''
+    last_notified: 2017-03-23
+# - model: account.emailaddress
+#   pk: 1
+#   fields:
+#     user: [superuser]
+#     email: fake@example.com
+#     verified: true
+- model: sites.site
+  pk: 1
+  fields: {domain: localhost:8080, name: localhost:8080}
