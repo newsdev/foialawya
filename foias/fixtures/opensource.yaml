@@ -376,7 +376,7 @@
     resp_date: 2017-02-14
     response_satisfactory: true
     response_notes: ''
-    response_url: 
+    response_url: ''
     appealed: false
     appeal_date: null
     lawsuit_filed: false
@@ -391,4 +391,6 @@
 #     verified: true
 - model: sites.site
   pk: 1
-  fields: {domain: localhost:8080, name: localhost:8080}
+  fields: 
+    domain: "localhost:8080"
+    name: "localhost:8080"
