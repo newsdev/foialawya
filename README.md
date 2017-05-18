@@ -72,7 +72,7 @@ The pre-created user has the username `superuser` and the password `password`. I
 
 However, our internal version uses django-allauth, which is included here. If you want to turn it on, follow these directions.
 
-The benefits of the OAuth system is that it allows your users to "seamlessly" log in. They don't have to create a new
+The benefits of the OAuth system is that it allows your users to "seamlessly" log in. They don't have to create a new username/password for FOIA Lawya, but can instead use their main Google account. 
 
 1. Add the domain of your site here: http://localhost:8080/admin/sites/site/
 2. Once you do, take the number from the URL (the `2` from `http://whatever.com/admin/sites/site/2/change/`) and then set the SITE_ID variable to it. (e.g. `SITE_ID=2`)
