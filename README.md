@@ -107,5 +107,5 @@ Eventually (TODO):
 Notes on things that'll eventually cause problems:
 ==================================================
 
-There is not currently a full-text index (as of 3/28/17) but it might eventually be necessary. And if so, it wouldn't be reflected in code here (Django: ¯\_(ツ)_/¯).
+There is not currently a full-text index (as of 3/28/17) but it might eventually be necessary. And if so, it wouldn't be reflected in code here (Django: ¯\\\_(ツ)\_/¯).
 
