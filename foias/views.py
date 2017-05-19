@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from .models import Foia, Agency
 
 from django.dispatch import receiver
@@ -11,6 +11,7 @@ from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 
+from datetime import datetime
 
 @receiver(pre_save, sender=User)
 def prepare_user(sender, instance, **kwargs):
@@ -53,6 +54,14 @@ def index(request):
          'percent_overdue': percent_overdue,
          'percent_complete': percent_complete,
         })
+
+def addten(request):
+    days_to_add = 10
+    date_str = request.GET["date"]
+    date = datetime.strptime(date_str, "%Y-%m-%d")
+    f = Foia()
+    new_date = f.cal.addbusdays(date, days_to_add).date()
+    return JsonResponse({'old_date':date, 'new_date': new_date, 'days_added': days_to_add})
 
 def healthcheck(request):
     return HttpResponse('', content_type="text/plain", status=200)

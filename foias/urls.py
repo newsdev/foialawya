@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^healthcheck$', views.healthcheck, name="healthcheck"),
     url(r'^search$', views.search, name="search"),
     url(r'^all$', views.all, name="all"),    
+    url(r'^addten$', views.addten, name="addten"),
 
 
     # # this is not implemented!

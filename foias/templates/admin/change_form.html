@@ -15,6 +15,8 @@
   <script type="text/javascript">
     if($('.field-date_response_due_custom input').val() == ''){
       $('.field-date_response_due_custom').hide();
+    }else{
+      $('.field-date_response_due_human').hide();      
     }
 
     $('#custom-resp-due').on('click', function(e){
@@ -23,6 +25,29 @@
       $('.field-date_response_due_custom').show();
       return false;
     })
+
+    // adds a button to add a 10 Business Day Extension
+    // which is a thing a lot of agencies ask for.
+    // we piggyback on the the window.DateTimeShortcuts.addCalendar method
+    // first by "saving" the original to originalAddCalendar
+    // then when it gets called, we run the original
+    // plus our own code to add the button.
+    var originalAddCalendar = window.DateTimeShortcuts.addCalendar;
+
+    window.DateTimeShortcuts.addCalendar = function(inp){
+      originalAddCalendar(inp);
+      console.log(inp);
+      if (inp == $('.field-date_response_due_custom input').get(0)){
+        $('.field-date_response_due_custom .datetimeshortcuts').append('&nbsp;|&nbsp;<a href="#" id="add-ten-bizdays">+10 Business Day Extension</a>');
+        $('#add-ten-bizdays').on("click", function(){
+          var currentDate = $('.field-date_response_due_custom input').val();
+          $.getJSON("/foias/addten?date=" + currentDate, function(res){
+            $('.field-date_response_due_custom input').val(res["new_date"]);
+          })
+          return false;
+        })
+      }
+    }    
   </script>
 </div>
 {% endblock %}
