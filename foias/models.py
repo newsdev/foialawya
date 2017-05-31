@@ -225,6 +225,23 @@ class Foia(models.Model):
       return None
     return self._calculate_due_date(datetime.datetime(*(self.filed_date.timetuple()[:6])), *self.response_due_duration)
 
+
+  def is_overdue_notification_date(self, todays_date, number_of_days_to_remind=20, type_of_day_calculation=None):
+    if type_of_day_calculation is None:
+      type_of_day_calculation = self.BUSINESS
+    if not self.filed_date:
+      return None
+    if self.is_incalculable():
+      return None
+    due_date =  self.date_response_due_custom if self.date_response_due_custom else self._calculate_due_date(datetime.datetime(*(self.filed_date.timetuple()[:6])), *self.response_due_duration)
+    if type_of_day_calculation == self.BUSINESS:
+      days_since_due_date = self.cal.busdaycount(datetime.datetime.combine(due_date, datetime.datetime.min.time()), datetime.datetime.combine(todays_date, datetime.datetime.min.time()))
+    else:
+      days_since_due_date = todays_date - due_date
+    print(days_since_due_date)
+    return days_since_due_date % number_of_days_to_remind == 0 and days_since_due_date > 0
+
+
   def date_response_due_human(self):
     return self.date_response_due() or "(not yet calculated)"
   date_response_due_human.short_description = mark_safe("When are the records due? (Automatically calculated) <a href='#' id='custom-resp-due'>Set a custom due date</a>")
@@ -276,6 +293,11 @@ class Foia(models.Model):
       return False
     return self.appealed and self.date_appeal_response_due() == datetime.date.today()
 
+  def check_if_needs_reminder_about_overdueness(self, number_of_days_to_remind=20, type_of_day_calculation=None):
+    if type_of_day_calculation is None:
+      type_of_day_calculation = self.BUSINESS
+    return (not self.received_response) and \
+            self.is_overdue_notification_date(datetime.date.today(), number_of_days_to_remind, type_of_day_calculation) 
 
   def notify_if_necessary(self):
     # notify max once per day.
@@ -291,6 +313,8 @@ class Foia(models.Model):
       self.notify_that_appeal_due()
     elif self.check_if_appeal_response_due():
       self.notify_that_appeal_response_due()
+    elif self.check_if_needs_reminder_about_overdueness(20, self.BUSINESS):
+      self.notify_that_response_is_overdue()
     else:
       print("checked FOIA #{}, it doesn't need any notifications".format(self.pk))
     self.last_notified = datetime.date.today()
@@ -346,7 +370,7 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
           ),
         to=[self.reporter.email],
-        cc=[clerk.email for clerk in User.objects.filter(SpecialPerson__is_clerk=True)]
+        cc=[clerk.email for clerk in User.objects.filter(specialperson__is_clerk=True)]
      )
     html_content = """<p>the {} owes you a response, due {}, to your FOIA about '{}'.</p>
 <p>If they haven't sent you a response yet, you might want to contact them.
@@ -377,8 +401,8 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         ),
-        to=[lawyer.email for lawyer in User.objects.filter(SpecialPerson__is_lawyer=True)],
-        cc=[self.reporter.email].append([clerk.email for clerk in User.objects.filter(SpecialPerson__is_clerk=True)])
+        to=[lawyer.email for lawyer in User.objects.filter(specialperson__is_lawyer=True)],
+        cc=[self.reporter.email].append([clerk.email for clerk in User.objects.filter(specialperson__is_clerk=True)])
      )
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due {}. For more details, <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
@@ -407,8 +431,8 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         ),
-        to=[lawyer.email for lawyer in User.objects.filter(SpecialPerson__is_lawyer=True)],
-        cc=[self.reporter.email] + [clerk.email for clerk in User.objects.filter(SpecialPerson__is_clerk=True)]
+        to=[lawyer.email for lawyer in User.objects.filter(specialperson__is_lawyer=True)],
+        cc=[self.reporter.email] + [clerk.email for clerk in User.objects.filter(specialperson__is_clerk=True)]
      )
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
@@ -437,8 +461,8 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         ),
-        to=[lawyer.email for lawyer in User.objects.filter(SpecialPerson__is_lawyer=True)],
-        cc=[self.reporter.email] + [clerk.email for clerk in User.objects.filter(SpecialPerson__is_clerk=True)]
+        to=[lawyer.email for lawyer in User.objects.filter(specialperson__is_lawyer=True)],
+        cc=[self.reporter.email] + [clerk.email for clerk in User.objects.filter(specialperson__is_clerk=True)]
      )
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
@@ -453,6 +477,39 @@ this message sent by the FOIA Lawya app ({}).
     msg.attach_alternative(html_content, "text/html")
     msg.send(fail_silently=False)
 
+
+  def notify_that_response_is_overdue(self):
+    msg = EmailMultiAlternatives(
+        subject='the {}\'s response to your FOIA is overdue'.format(self.agency),
+        body="""the {} owes you a response, due {}, to your FOIA about '{}'. \n
+If they haven't sent you a response yet, you might want to contact them.\n
+if they have, please update the FOIA Tracker: {}\n
+this message sent by the FOIA Lawya app ({}).
+        """.format(
+          self.agency, 
+          self.date_response_due(),
+          self.request_subject,
+          self.edit_link(),
+          Site.objects.get_current().domain
+          ),
+        to=[self.reporter.email],
+        cc=[clerk.email for clerk in User.objects.filter(specialperson__is_clerk=True)]
+     )
+    html_content = """<p>the {} owes you a response, due {}, to your FOIA about '{}'.</p>
+<p>If they haven't sent you a response yet, you might want to contact them.
+</p>
+<p>if they have, please update the <a href="{}">FOIA Tracker</a><p>
+<p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
+        """.format(
+          self.agency, 
+          self.date_response_due(),
+          self.request_subject,
+          self.edit_link(),
+          Site.objects.get_current().domain
+          )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send(fail_silently=False)
+  
 
   holidays =[
      # https://www.opm.gov/policy-data-oversight/snow-dismissal-procedures/federal-holidays/#url=2017
