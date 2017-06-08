@@ -29,6 +29,8 @@ class FoiaAdmin(admin.ModelAdmin):
             'request_subject',
             'request_notes',
 
+            'tags'
+
         ],
         'description': """Once you enter the details of your FOIA here, this app will calculate the due dates and send you email alerts if the agency blows its deadline for responding.<br/>
         <br />
@@ -109,9 +111,17 @@ class FoiaAdmin(admin.ModelAdmin):
             # `return ret` would send you to the Foia list under admin.
             return HttpResponseRedirect('/')
 
+
+    # this is the 
     def get_changeform_initial_data(self, request):
+        """Sets the initial state of the Create FOIA form"""
         initial_data = super(FoiaAdmin, self).get_changeform_initial_data(request)
         initial_data['reporter'] = request.user.pk
+        try:
+            if request.user.specialperson.default_project:
+                initial_data['tags'] = [request.user.specialperson.default_project]
+        except SpecialPerson.DoesNotExist:
+            pass
 
         if 'duplicatefoia' in request.GET:
             id_of_foia_to_dupe = request.GET['duplicatefoia']
@@ -163,7 +173,7 @@ class FoiaAdmin(admin.ModelAdmin):
 
 @admin.register(SpecialPerson)
 class SpecialPersonAdmin(admin.ModelAdmin):
-    fields = ["is_clerk", "is_lawyer", "user"]
+    fields = ["is_clerk", "is_lawyer", "user", "default_project"]
 
 @admin.register(Agency)
 class AgencyAdmin(admin.ModelAdmin):

@@ -60,6 +60,15 @@
   {% endif %}
 
 
+  {% if project_foias %}
+  <div class="row" style="border-top: 1em solid #336; margin-top: 20px; padding-top: 20px;">
+    <p class="lead">Here's a list of FOIAs in the project named <strong>{{ project_name }}</strong>: </p>
+  </div>
+    {% include "foias/foiatable.html" with foias=project_foias only %}
+  {% endif %}
+
+
+
   <div class="row" style="margin-top: 20px; padding-top: 20px;">
     <p class="lead">Here's a list of FOIAs filed recently by your colleagues: </p>
 

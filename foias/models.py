@@ -7,11 +7,17 @@ import datetime
 from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
+class Tag(models.Model):
+  name = models.CharField("Tag Name", max_length=200)
+  notes = models.TextField("Notes about this tag", blank=True, null=True)
+  def __str__(self):
+      return "{}".format(self.name)
+
 class MyUser(User):
    class Meta:
       proxy = True      
    def __str__(self):
-        return self.first_name + " " + self.last_name if self.first_name and self.last_name else self.username
+      return self.first_name + " " + self.last_name if self.first_name and self.last_name else self.username
 
 
 class SpecialPerson(models.Model):
@@ -20,11 +26,12 @@ class SpecialPerson(models.Model):
      like lawyers or clerks, who get notified of various steps in the FOIA process.
   """
   class Meta:
-    verbose_name = 'Clerk or Lawyer'
-    verbose_name_plural = 'Clerks and Lawyers'
+    verbose_name = 'People (Special Roles, Default Projects, etc.)'
+    verbose_name_plural = 'People (Special Roles, Default Projects, etc.)'
   user = models.OneToOneField(MyUser, null=False) # many-to-one  
   is_clerk = models.BooleanField('Is this person a clerk, I mean, news assistant?', default=False)
   is_lawyer = models.BooleanField('Got a jay dee?', default=False)
+  default_project = models.ForeignKey(Tag, null=True)
   def __str__(self):
     if self.is_clerk and self.is_lawyer:
       return "{} is a clerk and a lawyer, which is unanticipated and probably a mistake!".format(self.user)
@@ -82,6 +89,7 @@ class Foia(models.Model):
   lawsuit_filed = models.BooleanField('Have you (or your lawyer) filed a lawsuit over this?', default=False)
   lawsuit_filed_date = models.DateField('date lawsuit filed', blank=True, null=True)
   lawsuit_notes = models.TextField("Notes about the lawsuit ", blank=True)
+  tags = models.ManyToManyField(Tag, verbose_name="What project(s) is this request a part of?")
 
 
   # I don't want to notify people multiple times a day, ever.
@@ -139,6 +147,9 @@ class Foia(models.Model):
       "sort_order": 2
     },
   }
+
+  def tags_str(self):
+    return ', '.join([tag.name for tag in self.tags.all()])
 
   def sort_order(self):
     """sort order for cases, based on status"""

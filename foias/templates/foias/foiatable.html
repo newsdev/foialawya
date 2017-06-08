@@ -1,5 +1,6 @@
 <table class="alternaterows foiatable">
   <thead>
+    <th>project</th>
     <th>filed</th>
     <th>with... </th>
     <th>for...</th>
@@ -12,12 +13,13 @@
 {% for foia in foias %}
     <!-- TODO: if it's your FOIA, link you to the admin page? -->
     <tr>
+      <td>{{ foia.tags_str }}</td>
       <td>{{ foia.filed_date }}</td>
       <td>{{ foia.agency }}</td>
       <td>{{ foia.request_subject|truncatechars:50 }}</td>
       <td>{{ foia.status }}</td>
       <td>{{ foia.next_due_date }}</td>
-      <td>{{ foia.reporter }}</td>            
+      <td>{{ foia.reporter }}</td>
       <td><span style="display: none;">{{ foia.sort_order }} {{foia.sortable_filed_date}}</span> <a class="btn btn-default btn-block" href="{% url 'admin:foias_foia_change' foia.id %}">View / Edit</a></td>
     </tr>
 {% endfor %}

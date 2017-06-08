@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
-from .models import Foia, Agency
+from .models import Foia, Agency, Tag
 
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -39,21 +39,41 @@ def index(request):
         my_foias     = sorted(Foia.objects.filter(reporter=request.user), key=lambda f: f.sort_order())
     my_foias_set = set(my_foias)
 
+    try:
+        if request.user.specialperson.default_project:
+            project_foias = sorted(Foia.objects.filter(tags=request.user.specialperson.default_project), key=lambda f: f.sort_order())
+            project_name = request.user.specialperson.default_project.name
+    except SpecialPerson.DoesNotExist:
+        project_foias = []
+
+    # for the dashboard thingy
     my_foias_count   = Foia.objects.filter(reporter=request.user).count() if not request.user.is_anonymous else 0
     all_foias_count  = Foia.objects.count()
-    percent_overdue  = "TK" #Foia.objects.filter(reporter=request.user).count()
+    percent_overdue  = "TK" #Foia.objects.filter(reporter=request.user).count() / ??
     percent_complete =  int(float(Foia.objects.filter(received_response=True).filter(response_satisfactory=True).count())/all_foias_count*100) if not all_foias_count == 0 else "n/a"
 
     latest_foias = [item for item in latest_foias if item not in my_foias_set]
     return render(request, 'foias/index.html', 
         {'latest_foias': latest_foias, 
          'my_foias': my_foias, 
+         'project_foias': project_foias,
          'warn_about_holidays': date.today()>date(2020, 11, 1),
          'my_foias_count': my_foias_count,
          'all_foias_count': all_foias_count,
          'percent_overdue': percent_overdue,
          'percent_complete': percent_complete,
         })
+
+def project(request, tag_id):
+    project_name = Tag.objects.get(id=tag_id).name
+    project_foias = sorted(Foia.objects.filter(tags__id=tag_id), key=lambda f: f.sort_order())
+    return render(request, 'foias/project.html', 
+        {
+         'project_foias': project_foias,
+         'project_name': project_name,
+         'warn_about_holidays': date.today()>date(2020, 11, 1),
+        })
+
 
 def addten(request):
     days_to_add = 10
