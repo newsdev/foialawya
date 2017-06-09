@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
   'foias.example.com'
 
 ]
+USE_X_FORWARDED_HOST
 
 ADMINS = [('Your Name', 'your.name@example.com'), ]
 SERVER_EMAIL = 'foialawya@example.com'
@@ -39,20 +40,3 @@ if USE_ALLAUTH:
 	SITE_ID = os.environ.get("SITE_ID", 1)
 
 DEBUG=False
-
-
-if USE_ALLAUTH:
-    INSTALLED_APPS += [
-        'django.contrib.sites',
-
-        'allauth',
-        'allauth.account',
-        'allauth.socialaccount',
-        'allauth.socialaccount.providers.google',
-    ]
-
-if USE_ALLAUTH:
-    MIDDLEWARE_CLASSES += ['django.contrib.auth.middleware.SessionAuthenticationMiddleware']
-MIDDLEWARE_CLASSES += ['django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
