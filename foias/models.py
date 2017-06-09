@@ -89,7 +89,7 @@ class Foia(models.Model):
   lawsuit_filed = models.BooleanField('Have you (or your lawyer) filed a lawsuit over this?', default=False)
   lawsuit_filed_date = models.DateField('date lawsuit filed', blank=True, null=True)
   lawsuit_notes = models.TextField("Notes about the lawsuit ", blank=True)
-  tags = models.ManyToManyField(Tag, verbose_name="What project(s) is this request a part of?")
+  tags = models.ManyToManyField(Tag, verbose_name="What project(s) is this request a part of?", blank=True)
 
 
   # I don't want to notify people multiple times a day, ever.
