@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
-from .models import Foia, Agency, Tag
+from .models import Foia, Agency, Tag, SpecialPerson
 
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
@@ -39,12 +39,13 @@ def index(request):
         my_foias     = sorted(Foia.objects.filter(reporter=request.user), key=lambda f: f.sort_order())
     my_foias_set = set(my_foias)
 
+    project_foias = []
     try:
-        if request.user.specialperson.default_project:
+        if not request.user.is_anonymous and request.user.specialperson.default_project:
             project_foias = sorted(Foia.objects.filter(tags=request.user.specialperson.default_project), key=lambda f: f.sort_order())
             project_name = request.user.specialperson.default_project.name
     except SpecialPerson.DoesNotExist:
-        project_foias = []
+        pass
 
     # for the dashboard thingy
     my_foias_count   = Foia.objects.filter(reporter=request.user).count() if not request.user.is_anonymous else 0
