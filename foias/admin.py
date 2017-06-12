@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Foia, SpecialPerson, Agency
+from .models import Foia, SpecialPerson, Agency, Tag
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -177,5 +177,10 @@ class SpecialPersonAdmin(admin.ModelAdmin):
 
 @admin.register(Agency)
 class AgencyAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     pass
 

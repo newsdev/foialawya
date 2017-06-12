@@ -8,6 +8,9 @@ from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
 class Tag(models.Model):
+  class Meta:
+    verbose_name = 'Project/Tag'
+    verbose_name_plural = 'Projects/Tags'  
   name = models.CharField("Tag Name", max_length=200)
   notes = models.TextField("Notes about this tag", blank=True, null=True)
   def __str__(self):
@@ -147,9 +150,6 @@ class Foia(models.Model):
       "sort_order": 2
     },
   }
-
-  def tags_str(self):
-    return ', '.join([tag.name for tag in self.tags.all()])
 
   def sort_order(self):
     """sort order for cases, based on status"""

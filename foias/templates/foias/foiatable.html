@@ -13,7 +13,11 @@
 {% for foia in foias %}
     <!-- TODO: if it's your FOIA, link you to the admin page? -->
     <tr>
-      <td>{{ foia.tags_str }}</td>
+      <td>
+      {% for tag in foia.tags.all %}
+        <a href="{% url 'foias:project' tag.id %}">{{tag.name}}</a>
+      {% endfor %}
+      </td>
       <td>{{ foia.filed_date }}</td>
       <td>{{ foia.agency }}</td>
       <td>{{ foia.request_subject|truncatechars:50 }}</td>
