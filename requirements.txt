@@ -5,3 +5,4 @@ django-flat-responsive
 django-allauth
 pyyaml
 cryptography
+requests
