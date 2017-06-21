@@ -55,6 +55,18 @@ You also need to do this for the link to your site to work in emails:
 1. Add the domain of your site here: http://wherever.its.deployed.example.com/admin/sites/site/
 2. Once you do, take the number from the URL (the `2` from `http://wherever.its.deployed.example.com/admin/sites/site/2/change/`) and then set the SITE_ID variable to it. (e.g. `SITE_ID=2`)
 
+Slack integration
+-----------------
+
+FOIA Lawya can send notifications via Slack along with email (or instead of it).  FOIA Lawya will alert users via a private Slackbot message. 
+ There are two steps to setting this up:
+ - add the `SLACK_WEBHOOK_URL` environment variable and set it to your Slack webhook URL.
+ - also, set the Slack handle for each user who wants Slack notifications in the SpecialPerson portion of the admin. (Users without slack handles won't get notifications.)
+
+Huginn integration
+------------------
+
+If you'd like alerts sent to Huginn (kind of like IFTTT or Yahoo Pipes), so you can dispatch them somewhere else, use the `HUGINN_WEBHOOK_URL`.
 
 Docker Compose (How to run FOIA Lawya locally)
 ----------------------------------------------
