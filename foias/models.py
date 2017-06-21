@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 import requests
 from django.conf import settings
+import json
 
 class Tag(models.Model):
   class Meta:
@@ -36,7 +37,8 @@ class SpecialPerson(models.Model):
   user = models.OneToOneField(MyUser, null=False) # many-to-one  
   is_clerk = models.BooleanField('Is this person a clerk, I mean, news assistant?', default=False)
   is_lawyer = models.BooleanField('Got a jay dee?', default=False)
-  default_project = models.ForeignKey(Tag, null=True)
+  default_project = models.ForeignKey(Tag, null=True, blank=True)
+  slack_handle = models.CharField("Slack Name", max_length=200, default=None, null=True)
   def __str__(self):
     if self.is_clerk and self.is_lawyer:
       return "{} is a clerk and a lawyer, which is unanticipated and probably a mistake!".format(self.user)
@@ -46,6 +48,14 @@ class SpecialPerson(models.Model):
       return "{} is a lawyer".format(self.user)
     else:
       return "{} is neither a clerk nor a lawyer.".format(self.user)
+
+  def slack_channel(self):
+    if not self.slack_handle:
+      return None
+    elif self.slack_handle[0] == "@":
+      return self.slack_handle
+    else:
+      return "@{}".format(self.slack_handle)
 
 class Agency(models.Model):
   """Represents an agency!
@@ -317,53 +327,53 @@ class Foia(models.Model):
     if self.last_notified == datetime.date.today():
       return
     if self.check_if_ack_due():
-      self.notify_that_ack_due()
+      self._notify_that_ack_due()
     elif self.check_if_response_due():
-      self.notify_that_response_due()
+      self._notify_that_response_due()
     elif self.check_if_appeal_almost_due():
-      self.notify_that_appeal_almost_due()
+      self._notify_that_appeal_almost_due()
     elif self.check_if_appeal_due():
-      self.notify_that_appeal_due()
+      self._notify_that_appeal_due()
     elif self.check_if_appeal_response_due():
-      self.notify_that_appeal_response_due()
+      self._notify_that_appeal_response_due()
     elif self.check_if_needs_reminder_about_overdueness(20, self.BUSINESS):
-      self.notify_that_response_is_overdue()
+      self._notify_that_response_is_overdue()
     else:
       print("checked FOIA #{}, it doesn't need any notifications".format(self.pk))
     self.last_notified = datetime.date.today()
     self.save()
   
 
-  def notify_that_ack_due(self):
-    self.slack_notify_that_ack_due()
-    self.email_notify_that_ack_due()
-    self.huginn_notify_that_ack_due()
-  def notify_that_response_due(self):
-    self.slack_notify_that_response_due()
-    self.email_notify_that_response_due()
-    self.huginn_notify_that_response_due()
-  def notify_that_appeal_almost_due(self):
-    self.slack_notify_that_appeal_almost_due()
-    self.email_notify_that_appeal_almost_due()
-    self.huginn_notify_that_appeal_almost_due()
-  def notify_that_appeal_due(self):
-    self.slack_notify_that_appeal_due()
-    self.email_notify_that_appeal_due()
-    self.huginn_notify_that_appeal_due()
-  def notify_that_appeal_response_due(self):
-    self.slack_notify_that_appeal_response_due()
-    self.email_notify_that_appeal_response_due()
-    self.huginn_notify_that_appeal_response_due()
-  def notify_that_response_is_overdue(self):
-    self.slack_notify_that_response_is_overdue()
-    self.email_notify_that_response_is_overdue()
-    self.huginn_notify_that_response_is_overdue()
+  def _notify_that_ack_due(self):
+    self._slack_notify_that_ack_due()
+    self._email_notify_that_ack_due()
+    self._huginn_notify_that_ack_due()
+  def _notify_that_response_due(self):
+    self._slack_notify_that_response_due()
+    self._email_notify_that_response_due()
+    self._huginn_notify_that_response_due()
+  def _notify_that_appeal_almost_due(self):
+    self._slack_notify_that_appeal_almost_due()
+    self._email_notify_that_appeal_almost_due()
+    self._huginn_notify_that_appeal_almost_due()
+  def _notify_that_appeal_due(self):
+    self._slack_notify_that_appeal_due()
+    self._email_notify_that_appeal_due()
+    self._huginn_notify_that_appeal_due()
+  def _notify_that_appeal_response_due(self):
+    self._slack_notify_that_appeal_response_due()
+    self._email_notify_that_appeal_response_due()
+    self._huginn_notify_that_appeal_response_due()
+  def _notify_that_response_is_overdue(self):
+    self._slack_notify_that_response_is_overdue()
+    self._email_notify_that_response_is_overdue()
+    self._huginn_notify_that_response_is_overdue()
 
 
 
 
 
-  def slack_notify_that_ack_due(self):
+  def _slack_notify_that_ack_due(self):
     message = """the {} might owe you an acknowledgement on your FOIA, about '{}'.\n
 It's due on {} (for some agencies). \n
 if they haven't sent you one, you might want to give them a call.\n
@@ -376,10 +386,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def slack_notify_that_response_due(self):
+  def _slack_notify_that_response_due(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
 if they have, please update the FOIA Tracker: {}\n
@@ -391,10 +401,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
           )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def slack_notify_that_appeal_almost_due(self):
+  def _slack_notify_that_appeal_almost_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -405,10 +415,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def slack_notify_that_appeal_due(self):
+  def _slack_notify_that_appeal_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -419,10 +429,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def slack_notify_that_appeal_response_due(self):
+  def _slack_notify_that_appeal_response_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -433,10 +443,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def slack_notify_that_response_is_overdue(self):
+  def _slack_notify_that_response_is_overdue(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
 if they have, please update the FOIA Tracker: {}\n
@@ -448,10 +458,10 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
           )
-    if settings.slack_webhook_url and self.reporter.slack_handle:
-      r  = requests.post(settings.slack_webhook_url, data = {'text': message, 'channel': self.reporter.slack_handle, "username": "foialawya"})
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r  = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
 
-  def huginn_notify_that_ack_due(self):
+  def _huginn_notify_that_ack_due(self):
     message = """the {} might owe you an acknowledgement on your FOIA, about '{}'.\n
 It's due on {} (for some agencies). \n
 if they haven't sent you one, you might want to give them a call.\n
@@ -464,9 +474,9 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
-  def huginn_notify_that_response_due(self):
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+  def _huginn_notify_that_response_due(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
 if they have, please update the FOIA Tracker: {}\n
@@ -478,9 +488,9 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
           )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
-  def huginn_notify_that_appeal_almost_due(self):
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+  def _huginn_notify_that_appeal_almost_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -491,9 +501,9 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
-  def huginn_notify_that_appeal_due(self):
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+  def _huginn_notify_that_appeal_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -504,9 +514,9 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
-  def huginn_notify_that_appeal_response_due(self):
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+  def _huginn_notify_that_appeal_response_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
@@ -517,9 +527,9 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
         )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
-  def huginn_notify_that_response_is_overdue(self):
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+  def _huginn_notify_that_response_is_overdue(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
 if they have, please update the FOIA Tracker: {}\n
@@ -531,12 +541,12 @@ this message sent by the FOIA Lawya app ({}).
           self.edit_link(),
           Site.objects.get_current().domain
           )
-    if settings.huginn_webhook_url and self.reporter.slack_handle:
-      r = requests.post(settings.huginn_webhook_url, data = {'message': message, 'username': self.reporter.slack_handle})
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
 
 
 
-  def email_notify_that_ack_due(self):
+  def _email_notify_that_ack_due(self):
     msg = EmailMultiAlternatives(
         subject='the {} might owe you an acknowledgement on your FOIA'.format(self.agency),
         body="""the {} might owe you an acknowledgement on your FOIA, about '{}'.\n
@@ -570,7 +580,7 @@ this message sent by the FOIA Lawya app ({}).
     msg.send(fail_silently=False)
   
 
-  def email_notify_that_response_due(self):
+  def _email_notify_that_response_due(self):
     msg = EmailMultiAlternatives(
         subject='the {} owes you a response to your FOIA'.format(self.agency),
         body="""the {} owes you a response, due {}, to your FOIA about '{}'. \n
@@ -603,7 +613,7 @@ this message sent by the FOIA Lawya app ({}).
     msg.send(fail_silently=False)
   
 
-  def email_notify_that_appeal_almost_due(self):
+  def _email_notify_that_appeal_almost_due(self):
     msg = EmailMultiAlternatives(
         subject="a FOIA appeal is due soon for {}'s request of {}".format(self.reporter.name, self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
@@ -633,7 +643,7 @@ this message sent by the FOIA Lawya app ({}).
     msg.send(fail_silently=False)
   
 
-  def email_notify_that_appeal_due(self):
+  def _email_notify_that_appeal_due(self):
     msg = EmailMultiAlternatives(
         subject="a FOIA appeal is due today for {}'s request of {}".format(self.reporter.name, self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
@@ -663,7 +673,7 @@ this message sent by the FOIA Lawya app ({}).
     msg.send(fail_silently=False)
   
 
-  def email_notify_that_appeal_response_due(self):
+  def _email_notify_that_appeal_response_due(self):
     msg = EmailMultiAlternatives(
         subject="a FOIA response is due back today for {}'s request of {}".format(self.reporter.name, self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
@@ -693,7 +703,7 @@ this message sent by the FOIA Lawya app ({}).
     msg.send(fail_silently=False)
 
 
-  def email_notify_that_response_is_overdue(self):
+  def _email_notify_that_response_is_overdue(self):
     msg = EmailMultiAlternatives(
         subject='the {}\'s response to your FOIA is overdue'.format(self.agency),
         body="""the {} owes you a response, due {}, to your FOIA about '{}'. \n

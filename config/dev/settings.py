@@ -136,6 +136,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+SLACK_WEBHOOK_URL =  os.environ.get("SLACK_WEBHOOK_URL")
+HUGINN_WEBHOOK_URL = os.environ.get("HUGINN_WEBHOOK_URL")
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

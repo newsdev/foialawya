@@ -173,7 +173,7 @@ class FoiaAdmin(admin.ModelAdmin):
 
 @admin.register(SpecialPerson)
 class SpecialPersonAdmin(admin.ModelAdmin):
-    fields = ["is_clerk", "is_lawyer", "user", "default_project"]
+    fields = ["is_clerk", "is_lawyer", "user", "default_project", "slack_handle"]
 
 @admin.register(Agency)
 class AgencyAdmin(admin.ModelAdmin):
