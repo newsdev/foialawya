@@ -408,7 +408,7 @@ this message sent by the FOIA Lawya app ({}).
     message = """an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -422,7 +422,7 @@ this message sent by the FOIA Lawya app ({}).
     message = """an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -436,7 +436,7 @@ this message sent by the FOIA Lawya app ({}).
     message = """an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -475,7 +475,7 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
         )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
   def _huginn_notify_that_response_due(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
@@ -489,12 +489,12 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
           )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
   def _huginn_notify_that_appeal_almost_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -502,12 +502,12 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
         )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
   def _huginn_notify_that_appeal_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -515,12 +515,12 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
         )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
   def _huginn_notify_that_appeal_response_due(self):
     message = """an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -528,7 +528,7 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
         )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
   def _huginn_notify_that_response_is_overdue(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
@@ -542,7 +542,7 @@ this message sent by the FOIA Lawya app ({}).
           Site.objects.get_current().domain
           )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
-      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.specialperson and self.reporter.specialperson.slack_channel()})
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
 
 
 
@@ -615,11 +615,11 @@ this message sent by the FOIA Lawya app ({}).
 
   def _email_notify_that_appeal_almost_due(self):
     msg = EmailMultiAlternatives(
-        subject="a FOIA appeal is due soon for {}'s request of {}".format(self.reporter.name, self.agency),
+        subject="a FOIA appeal is due soon for {}'s request of {}".format(str(self.reporter), self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -632,7 +632,7 @@ this message sent by the FOIA Lawya app ({}).
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due {}. For more details, <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -645,11 +645,11 @@ this message sent by the FOIA Lawya app ({}).
 
   def _email_notify_that_appeal_due(self):
     msg = EmailMultiAlternatives(
-        subject="a FOIA appeal is due today for {}'s request of {}".format(self.reporter.name, self.agency),
+        subject="a FOIA appeal is due today for {}'s request of {}".format(str(self.reporter), self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -662,7 +662,7 @@ this message sent by the FOIA Lawya app ({}).
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due today, {}. For more details, click here: <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -675,11 +675,11 @@ this message sent by the FOIA Lawya app ({}).
 
   def _email_notify_that_appeal_response_due(self):
     msg = EmailMultiAlternatives(
-        subject="a FOIA response is due back today for {}'s request of {}".format(self.reporter.name, self.agency),
+        subject="a FOIA response is due back today for {}'s request of {}".format(str(self.reporter), self.agency),
         body="""an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: {}.\n
 this message sent by the FOIA Lawya app ({}).
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
@@ -692,7 +692,7 @@ this message sent by the FOIA Lawya app ({}).
     html_content = """<p>an appeal for {}'s request from {} about '{}' is due back today, {}. For more details, click here: <a href="{}">visit the FOIA Tracker</a>.</p>
 <p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
         """.format(
-          self.reporter.name, 
+          str(self.reporter), 
           self.agency, 
           self.request_subject,
           self.appeal_almost_due_date(),
