@@ -21,8 +21,8 @@ def prepare_user(sender, instance, **kwargs):
         ## or a few whitelisted emails for testing.
 
         if settings.USE_ALLAUTH:
-            if instance.email and not instance.email.split('@')[1] == settings.ALLOWABLE_LOGIN_DOMAIN:
-                raise Http404('Please login with your nytimes.com email address.')
+            if instance.email and settings.ALLOWABLE_LOGIN_DOMAIN and not instance.email.split('@')[1] == settings.ALLOWABLE_LOGIN_DOMAIN:
+                raise Http404('Please login with your {} email address.'.format(ALLOWABLE_LOGIN_DOMAIN))
 
         instance.is_staff = True
         instance.is_superuser = True
