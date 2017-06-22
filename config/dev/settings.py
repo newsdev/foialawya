@@ -159,5 +159,5 @@ SITE_ID = os.environ.get("SITE_ID", 1)
 
 STATIC_URL = '/static/'
 
-DEFAULT_FROM_EMAIL = 'foialawya@example.com'
+DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_FROM_ADDRESS", 'foialawya@example.com')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
