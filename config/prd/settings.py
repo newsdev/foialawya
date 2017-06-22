@@ -24,7 +24,7 @@ ALLOWED_HOSTS = [
   'foias.example.com'
 
 ]
-USE_X_FORWARDED_HOST
+USE_X_FORWARDED_HOST=True
 
 ADMINS = [('Your Name', 'your.name@example.com'), ]
 SERVER_EMAIL = 'foialawya@example.com'

@@ -8,7 +8,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('foias', '0028_auto_20170609_1656'),
         ('foias', '0028_auto_20170612_1253'),
     ]
 
