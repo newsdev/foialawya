@@ -186,7 +186,7 @@ class Foia(models.Model):
     elif self.received_response: # acknowledged, responded to, but not appealed
       if self.response_satisfactory:
         return "RESPONSE_RECEIVED_OK"
-      elif self.date_appeal_due() < datetime.date.today():
+      elif self.resp_date and self.date_appeal_due() < datetime.date.today():
         return "RESPONSE_RECEIVED_UNAPPEALABLE"
       else:
         return "RESPONSE_RECEIVED_NOT_YET_APPEALED"
