@@ -121,7 +121,7 @@ class Foia(models.Model):
 
   ack_due_duration =             [10, BUSINESS] # 10 business days after sent (for some agencies)
   response_due_duration =        [20, BUSINESS] # 20 business days after sent (but there are extensions)
-  appeal_almost_due_duration =   [85, BUSINESS] # an arbitrary Jeremy-chosen amount less than 90 days after response
+  appeal_almost_due_duration =   [85, CALENDAR] # an arbitrary Jeremy-chosen amount less than 90 days after response
   appeal_due_duration =          [90, CALENDAR] # 90 days (not business, calendar) after response
   appeal_response_due_duration = [20, BUSINESS] # 20 business days after appeal filed
 
