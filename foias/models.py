@@ -220,7 +220,7 @@ class Foia(models.Model):
       if self.appealed:
         return  "Appeal response due {}".format(self.date_appeal_response_due())
       elif self.received_response: 
-        if self.date_appeal_due() < datetime.date.today():
+        if self.resp_date and self.date_appeal_due() < datetime.date.today():
           return "Too late to appeal."
         else:
           return "Appeal due {}".format(self.date_appeal_due())

@@ -48,7 +48,7 @@ def index(request):
         pass
 
     # for the dashboard thingy
-    my_foias_count   = Foia.objects.filter(reporter=request.user).count() if not request.user.is_anonymous else 0
+    my_foias_count   = len(my_foias_set) if not request.user.is_anonymous else 0
     all_foias_count  = Foia.objects.count()
     percent_overdue  = "TK" #Foia.objects.filter(reporter=request.user).count() / ??
     percent_complete =  int(float(Foia.objects.filter(received_response=True).filter(response_satisfactory=True).count())/all_foias_count*100) if not all_foias_count == 0 else "n/a"
