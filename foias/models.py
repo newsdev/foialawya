@@ -21,7 +21,9 @@ class Tag(models.Model):
 
 class MyUser(User):
    class Meta:
-      proxy = True      
+      proxy = True
+      ordering = ('first_name', 'last_name')
+  
    def __str__(self):
       return self.first_name + " " + self.last_name if self.first_name and self.last_name else self.username
 
@@ -66,6 +68,8 @@ class Agency(models.Model):
   class Meta:
     verbose_name = 'Agency'
     verbose_name_plural = 'Agencies'  
+    ordering = ('name',)
+
   name = models.CharField("Agency Name", max_length=200)
   notes = models.TextField("Notes about the agency", blank=True, null=True)
   def __str__(self):
