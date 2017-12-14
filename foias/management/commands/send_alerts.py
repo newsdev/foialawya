@@ -13,4 +13,4 @@ class Command(BaseCommand):
         for foia in Foia.objects.order_by('-filed_date'):
             foia.notify_if_necessary()
             self.stdout.write(self.style.SUCCESS('FOIA #{} is {}, {}'.format(foia.pk, foia.status(), foia.next_due_date() )))
-        sleep(3600) # an hour
+      sleep(3600) # an hour
