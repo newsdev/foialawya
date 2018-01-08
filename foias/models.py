@@ -128,6 +128,7 @@ class Foia(models.Model):
   appeal_almost_due_duration =   [85, CALENDAR] # an arbitrary Jeremy-chosen amount less than 90 days after response
   appeal_due_duration =          [90, CALENDAR] # 90 days (not business, calendar) after response
   appeal_response_due_duration = [20, BUSINESS] # 20 business days after appeal filed
+  constructive_denial_duration = [90, CALENDAR] # 90 business days after acknowledgment is a constructive denail, says Derek Kravitz.
 
   def __str__(self):
       return "{} FOIA filed on {} by {}".format(self.agency, self.filed_date, self.reporter)
@@ -143,7 +144,7 @@ class Foia(models.Model):
     },
     "APPEALED": {
       "name": "appealed",
-      "sort_order": 4
+      "sort_order": 5
     },
     "RESPONSE_RECEIVED_OK": {
       "name": "response received!",
@@ -151,19 +152,23 @@ class Foia(models.Model):
     },
     "RESPONSE_RECEIVED_UNAPPEALABLE": {
       "name": "response received (too late to appeal)",
-      "sort_order": 5
+      "sort_order": 6
     },
     "RESPONSE_RECEIVED_NOT_YET_APPEALED": {
       "name": "response received (not yet appealed)",
-      "sort_order": 3
+      "sort_order": 4
     },
     "ACKED": {
       "name": "acknowledged",
       "sort_order": 1
     },
+    "CONSTRUCTIVELY_DENIED": {
+      "name": "constructively denied?",
+      "sort_order": 2
+    },
     "FILED": {
       "name": "filed",
-      "sort_order": 2
+      "sort_order": 3
     },
   }
 
@@ -195,7 +200,10 @@ class Foia(models.Model):
       else:
         return "RESPONSE_RECEIVED_NOT_YET_APPEALED"
     elif self.received_ack_letter:
-      return "ACKED"
+      if self.constructively_denied():
+        return "CONSTRUCTIVELY_DENIED"
+      else:
+        return "ACKED"
     else: # no lawsuit, no appeal, no response, no ack.
       return "FILED"
 
@@ -240,7 +248,7 @@ class Foia(models.Model):
   def date_ack_due(self):
     if not self.filed_date:
       return "(not yet calculated)"
-    return self._calculate_due_date(datetime.datetime(*(self.filed_date.timetuple()[:6])), *self.ack_due_duration)
+    return self._calculate_due_date(self.filed_date, *self.ack_due_duration)
   date_ack_due.short_description = 'Date acknowledgment is due (depending on agency)'
 
   def date_response_due(self):
@@ -250,7 +258,7 @@ class Foia(models.Model):
       return self.date_response_due_custom
     if self.is_incalculable():
       return None
-    return self._calculate_due_date(datetime.datetime(*(self.filed_date.timetuple()[:6])), *self.response_due_duration)
+    return self._calculate_due_date(self.filed_date, *self.response_due_duration)
 
 
   def is_overdue_notification_date(self, todays_date, number_of_days_to_remind=20, type_of_day_calculation=None):
@@ -260,7 +268,7 @@ class Foia(models.Model):
       return None
     if self.is_incalculable():
       return None
-    due_date =  self.date_response_due_custom if self.date_response_due_custom else self._calculate_due_date(datetime.datetime(*(self.filed_date.timetuple()[:6])), *self.response_due_duration)
+    due_date =  self.date_response_due_custom if self.date_response_due_custom else self._calculate_due_date(self.filed_date, *self.response_due_duration)
     if type_of_day_calculation == self.BUSINESS:
       days_since_due_date = self.cal.busdaycount(datetime.datetime.combine(due_date, datetime.datetime.min.time()), datetime.datetime.combine(todays_date, datetime.datetime.min.time()))
     else:
@@ -276,21 +284,28 @@ class Foia(models.Model):
   def date_appeal_almost_due(self):
     if not self.resp_date:
       return "(unknown)"
-    return self._calculate_due_date(datetime.datetime(*(self.resp_date.timetuple()[:6])), *self.appeal_almost_due_duration)
+    return self._calculate_due_date(self.resp_date, *self.appeal_almost_due_duration)
 
   def date_appeal_due(self):
     if not self.resp_date:
       return "(90 biz days after documents are received)"
-    return self._calculate_due_date(datetime.datetime(*(self.resp_date.timetuple()[:6])), *self.appeal_due_duration)
+    return self._calculate_due_date(self.resp_date, *self.appeal_due_duration)
   date_appeal_due.short_description = 'Date appeal is due'
+
+  def date_constructively_denied(self):
+    if not self.ack_date:
+      return None
+    return self._calculate_due_date(self.ack_date, *self.constructive_denial_duration)
 
   def date_appeal_response_due(self):
     if not self.appeal_date:
       return "(20 days after appeal is filed)"
-    return self._calculate_due_date(datetime.datetime(*(self.appeal_date.timetuple()[:6])), *self.appeal_response_due_duration)
+    return self._calculate_due_date(self.appeal_date, *self.appeal_response_due_duration)
   date_appeal_response_due.short_description = 'Date agency\'s response to appeal is due'
 
   def _calculate_due_date(self, from_date, day_count, day_type):
+    if type(from_date) == datetime.date: # converting dates to datetimes
+      from_date = datetime.datetime(*(from_date.timetuple()[:6]))
     if day_type == self.CALENDAR:
       return (from_date + datetime.timedelta(days=day_count)).date()
     elif day_type == self.BUSINESS:
@@ -298,6 +313,9 @@ class Foia(models.Model):
     else:
       print("UH OH THIS SHOULDN'T EVER HAPPEN LOL")
       assert False
+
+  def constructively_denied(self):
+    return self.date_constructively_denied() and self.date_constructively_denied() >= datetime.date.today()
 
   def check_if_ack_due(self):
     if self.is_incalculable():
@@ -307,6 +325,9 @@ class Foia(models.Model):
     """We might conceivably be able to know this for state/foreign FOIAs, unlike the rest."""
     return (not self.received_response) and \
             self.date_response_due() == datetime.date.today()
+  def check_if_constructively_denied(self):
+    return (not self.received_response) and \
+            self.date_constructively_denied() == datetime.date.today()
   def check_if_appeal_almost_due(self):
     if self.is_incalculable():
       return False
@@ -332,6 +353,8 @@ class Foia(models.Model):
       return
     if self.check_if_ack_due():
       self._notify_that_ack_due()
+    elif self.check_if_constructively_denied():
+      self._notify_that_constructively_denied()
     elif self.check_if_response_due():
       self._notify_that_response_due()
     elif self.check_if_appeal_almost_due():
@@ -352,6 +375,10 @@ class Foia(models.Model):
     self._slack_notify_that_ack_due()
     self._email_notify_that_ack_due()
     self._huginn_notify_that_ack_due()
+  def _notify_that_constructively_denied(self):
+    self._slack_notify_that_constructively_denied()
+    self._email_notify_that_constructively_denied()
+    self._huginn_notify_that_constructively_denied()
   def _notify_that_response_due(self):
     self._slack_notify_that_response_due()
     self._email_notify_that_response_due()
@@ -387,6 +414,22 @@ this message sent by the FOIA Lawya app ({}).
           self.agency, 
           self.request_subject,
           self.date_ack_due(),
+          self.edit_link(),
+          Site.objects.get_current().domain
+        )
+    if settings.SLACK_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.SLACK_WEBHOOK_URL, data = json.dumps({'text': message, 'channel': self.reporter.specialperson.slack_channel(), "username": "foialawya"}))
+
+  def _slack_notify_that_constructively_denied(self):
+    message = """the {} might have constructively denied your FOIA, about '{}'.\n
+It was acknowledged on {} which was 90 days ago. \n
+if they haven't sent you any update, you might want to give them a call.\n
+if they have, please update the FOIA Tracker: {}\n
+this message sent by the FOIA Lawya app ({}).
+        """.format(
+          self.agency, 
+          self.request_subject,
+          self.ack_date,
           self.edit_link(),
           Site.objects.get_current().domain
         )
@@ -480,6 +523,23 @@ this message sent by the FOIA Lawya app ({}).
         )
     if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
       r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
+  
+  def _huginn_notify_that_constructively_denied(self):
+    message = """the {} might have constructively denied your FOIA, about '{}'.\n
+It was acknowledged on {} which was 90 days ago. \n
+if they haven't sent you any update, you might want to give them a call.\n
+if they have, please update the FOIA Tracker: {}\n
+this message sent by the FOIA Lawya app ({}).
+        """.format(
+          self.agency, 
+          self.request_subject,
+          self.ack_date,
+          self.edit_link(),
+          Site.objects.get_current().domain
+        )
+    if settings.HUGINN_WEBHOOK_URL and self.reporter.specialperson and self.reporter.specialperson.slack_channel():
+      r = requests.post(settings.HUGINN_WEBHOOK_URL, data = {'message': message, 'username': self.reporter.username, 'name': str(self.reporter), 'agency': self.agency, 'edit_link': self.edit_link(), 'subject': self.request_subject, 'slack_username': self.reporter.specialperson.slack_channel()})
+
   def _huginn_notify_that_response_due(self):
     message = """the {} owes you a response, due {}, to your FOIA about '{}'. \n
 If they haven't sent you a response yet, you might want to contact them.\n
@@ -583,7 +643,39 @@ this message sent by the FOIA Lawya app ({}).
     msg.attach_alternative(html_content, "text/html")
     msg.send(fail_silently=False)
   
-
+  def _email_notify_that_constructively_denied(self):
+    msg = EmailMultiAlternatives(
+        subject='the {} might owe you an acknowledgement on your FOIA'.format(self.agency),
+        body="""the {} might have constructively denied your FOIA, about '{}'.\n
+It was acknowledged on {} which was 90 days ago. \n
+if they haven't sent you any update, you might want to give them a call.\n
+if they have, please update the FOIA Tracker: {}\n
+this message sent by the FOIA Lawya app ({}).
+        """.format(
+          self.agency, 
+          self.request_subject,
+          self.ack_date,
+          self.edit_link(),
+          Site.objects.get_current().domain
+        ),
+        to=[self.reporter.email],
+        cc=[]
+        )
+    html_content = """<p>the {} might have constructively denied your FOIA, about '{}'.</p>
+<p>It was acknowledged on {} which was 90 days ago.x.</p>
+<p>if they haven't sent you one, you might want to give them a call.</p>
+<p>if they have, please update the <a href="{}">FOIA Tracker</a><p>
+<p>this message sent by the <a href="{}">FOIA Lawya app</a>.</p>
+        """.format(
+          self.agency, 
+          self.request_subject,
+          self.date_ack_due(),
+          self.edit_link(),
+          Site.objects.get_current().domain     
+        )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send(fail_silently=False)
+  
   def _email_notify_that_response_due(self):
     msg = EmailMultiAlternatives(
         subject='the {} owes you a response to your FOIA'.format(self.agency),
