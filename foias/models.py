@@ -315,7 +315,7 @@ class Foia(models.Model):
       assert False
 
   def constructively_denied(self):
-    return self.date_constructively_denied() and self.date_constructively_denied() >= datetime.date.today()
+    return self.date_constructively_denied() and self.date_constructively_denied() <= datetime.date.today()
 
   def check_if_ack_due(self):
     if self.is_incalculable():
